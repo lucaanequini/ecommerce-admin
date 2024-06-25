@@ -17,7 +17,6 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { AlertModal } from '@/components/modals/alert-modal'
 import ImageUpload from '@/components/ui/image-upload'
-import { useOrigin } from '@/hooks/use-origin'
 
 const formSchema = z.object({
     label: z.string().min(1),
@@ -35,7 +34,6 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
 }) => {
     const params = useParams()
     const router = useRouter()
-    const origin = useOrigin()
 
     const form = useForm<BillboardFormValues>({
         resolver: zodResolver(formSchema),
@@ -151,7 +149,6 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
                     <Button disabled={loading} className='ml-auto' type='submit'>{action}</Button>
                 </form>
             </Form>
-            <Separator />
         </>
     )
 }
