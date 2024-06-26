@@ -7,7 +7,10 @@ export async function GET (
     req: Request,
     { params } : { params: { colorId: string } }
 ) {
-    try {  
+    try {
+        if (!params.colorId) {
+            return new NextResponse('ColorId is required', { status: 400 });
+        }
         const color = await prismadb.color.findUnique({
             where: {
                 id: params.colorId
