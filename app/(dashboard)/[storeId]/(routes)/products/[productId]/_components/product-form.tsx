@@ -107,6 +107,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             toast.success('Producut deleted.')
         } catch (error) {
             toast.error('Something went wrong')
+            console.log(error)
         } finally {
             setLoading(false)
             setOpen(false)
