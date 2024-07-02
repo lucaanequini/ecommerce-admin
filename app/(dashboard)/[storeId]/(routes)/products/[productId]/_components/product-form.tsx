@@ -2,9 +2,9 @@
 
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Category, Color, Image, Product, Size } from "@prisma/client"
+import { Category, Color, Image, Product, ProductSize, Size } from "@prisma/client"
 import { Trash } from "lucide-react"
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useParams, useRouter } from 'next/navigation'
@@ -26,7 +26,7 @@ const formSchema = z.object({
     price: z.coerce.number().min(1),
     categoryId: z.string().min(1),
     colorId: z.string().min(1),
-    sizeId: z.string().min(1),
+    sizes: z.array(z.string()).min(1), // Atualizado para aceitar um array de strings
     isFeatured: z.boolean().default(false).optional(),
     isArchived: z.boolean().default(false).optional()
 })
@@ -36,6 +36,7 @@ type ProductFormValues = z.infer<typeof formSchema>
 interface ProductFormProps {
     initialData: Product & {
         images: Image[]
+        sizes: ProductSize[]
     } | null
     categories: Category[]
     colors: Color[]
@@ -55,14 +56,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         resolver: zodResolver(formSchema),
         defaultValues: initialData ? {
             ...initialData,
-            price: parseFloat(String(initialData?.price))
+            price: parseFloat(String(initialData?.price)),
+            sizes: initialData.sizes.map((size) => size.sizeId)
         } : {
             name: '',
             images: [],
             price: 0,
             categoryId: '',
             colorId: '',
-            sizeId: '',
+            sizes: [],
             isFeatured: false,
             isArchived: false
         }
@@ -82,6 +84,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             if (initialData) {
                 await axios.patch(`/api/${params.storeId}/products/${params.productId}`, data)
             } else {
+                console.log(data)
                 await axios.post(`/api/${params.storeId}/products`, data)
             }
             router.push(`/${params.storeId}/products`)
@@ -216,32 +219,31 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         />
                         <FormField
                             control={form.control}
-                            name='sizeId'
+                            name="sizes"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Size</FormLabel>
-                                    <Select
-                                        disabled={loading}
-                                        onValueChange={field.onChange}
-                                        value={field.value}
-                                        defaultValue={field.value}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue
-                                                    defaultValue={field.value}
-                                                    placeholder='Select a size'
-                                                />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
+                                    <FormLabel>Sizes</FormLabel>
+                                    <FormControl>
+                                        <div>
                                             {sizes.map((size) => (
-                                                <SelectItem key={size.id} value={size.id}>
-                                                    {size.name}
-                                                </SelectItem>
+                                                <Fragment key={size.id}>
+                                                    <div className="flex items-center space-x-2">
+                                                        <Checkbox
+                                                            checked={field.value.includes(size.id)}
+                                                            onCheckedChange={(checked) => {
+                                                                if (checked) {
+                                                                    field.onChange([...field.value, size.id]);
+                                                                } else {
+                                                                    field.onChange(field.value.filter((id) => id !== size.id));
+                                                                }
+                                                            }}
+                                                        />
+                                                        <span>{size.name}</span>
+                                                    </div>
+                                                </Fragment>
                                             ))}
-                                        </SelectContent>
-                                    </Select>
+                                        </div>
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}

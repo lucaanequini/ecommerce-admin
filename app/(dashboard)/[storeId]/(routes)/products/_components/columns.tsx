@@ -8,7 +8,7 @@ export type ProductColumn = {
     id: string
     name: string
     price: string
-    size: string
+    sizes: { productId: string, sizeId: string }[]
     category: string
     color: string
     isFeatured: boolean

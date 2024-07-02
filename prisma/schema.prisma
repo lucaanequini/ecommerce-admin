@@ -51,14 +51,14 @@ model Category {
 }
 
 model Size {
-  id        String    @id @default(uuid())
-  storeId   String
-  store     Store     @relation("StoreToSize", fields: [storeId], references: [id])
-  name      String
-  value     String
-  products  Product[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          String        @id @default(uuid())
+  storeId     String
+  store       Store         @relation("StoreToSize", fields: [storeId], references: [id])
+  name        String
+  value       String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  ProductSize ProductSize[]
 }
 
 model Color {
@@ -73,23 +73,31 @@ model Color {
 }
 
 model Product {
-  id         String      @id @default(uuid())
+  id         String        @id @default(uuid())
   storeId    String
-  store      Store       @relation("StoreToProduct", fields: [storeId], references: [id])
+  store      Store         @relation("StoreToProduct", fields: [storeId], references: [id])
   categoryId String
-  category   Category    @relation("CategoryToProduct", fields: [categoryId], references: [id])
+  category   Category      @relation("CategoryToProduct", fields: [categoryId], references: [id])
   name       String
   price      Decimal
-  isFeatured Boolean     @default(false)
-  isArchived Boolean     @default(false)
-  sizeId     String
-  size       Size        @relation(fields: [sizeId], references: [id])
+  isFeatured Boolean       @default(false)
+  isArchived Boolean       @default(false)
   colorId    String
-  color      Color       @relation(fields: [colorId], references: [id])
+  color      Color         @relation(fields: [colorId], references: [id])
   images     Image[]
   orderItems OrderItem[]
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  sizes      ProductSize[]
+}
+
+model ProductSize {
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  sizeId    String
+  size      Size    @relation(fields: [sizeId], references: [id])
+
+  @@id([productId, sizeId])
 }
 
 model Image {

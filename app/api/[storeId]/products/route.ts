@@ -11,7 +11,7 @@ export async function POST (
         const { userId } = auth();
         const body = await req.json();
         
-        const { name, price, categoryId, sizeId, colorId, images, isFeatured, isArchived } = body;
+        const { name, price, categoryId, sizes, colorId, images, isFeatured, isArchived } = body;
 
         if (!userId) {
             return new NextResponse('Unauthenticated', { status: 401 });
@@ -29,7 +29,7 @@ export async function POST (
             return new NextResponse('CategoryID is required', { status: 400 });
         }
 
-        if (!sizeId) {
+        if (!sizes || !sizes.length) {
             return new NextResponse('SizeID is required', { status: 400 });
         }
 
@@ -56,13 +56,22 @@ export async function POST (
             return new NextResponse('Unauthorized', { status: 403 });
         }
 
+        const isValidSizes = sizes.every((sizeId: string) => typeof sizeId === 'string' && sizeId.trim());
+        if (!isValidSizes) {
+             return new NextResponse('IDs de tamanho inválidos', { status: 400 });
+        }
+
         const product = await prismadb.product.create({
             data: {
                 name,
                 price,
                 isFeatured,
                 isArchived,
-                sizeId,
+                sizes: {
+                    createMany: {
+                        data: sizes.map((sizeId: string) => ({ sizeId }))
+                    }
+                },
                 colorId,
                 categoryId,
                 storeId: params.storeId,
@@ -92,7 +101,6 @@ export async function GET (
         const { searchParams } = new URL(req.url)
         const categoryId = searchParams.get('categoryId') || undefined
         const colorId = searchParams.get('colorId') || undefined
-        const sizeId = searchParams.get('sizeId') || undefined
         const isFeatured = searchParams.get('isFeatured')
 
         if (!params.storeId) {
@@ -104,14 +112,13 @@ export async function GET (
                 storeId: params.storeId,
                 categoryId,
                 colorId,
-                sizeId,
                 isFeatured: isFeatured ? true : undefined,
                 isArchived: false
             },
             include: {
                 images: true,
                 category: true,
-                size: true,
+                sizes: true,
                 color: true
             },
             orderBy: {
