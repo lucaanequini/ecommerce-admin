@@ -4,6 +4,7 @@ import { formatter } from '@/lib/utils'
 
 import { OrderClient } from "./_components/client"
 import { OrderColumn } from "./_components/columns"
+import { Size } from '@prisma/client'
 
 const OrdersPage = async ({
     params
@@ -15,7 +16,8 @@ const OrdersPage = async ({
         include: {
             orderItems: {
                 include: {
-                    product: true
+                    product: true,
+                    size: true
                 }
             }
         },
@@ -24,8 +26,19 @@ const OrdersPage = async ({
         }
     })
 
+    const sizes = orders.flatMap((item) => item.orderItems.map((orderItem) => orderItem.sizeId))
+
+    const sizeName = await prismadb.size.findFirst({
+        where: {
+            id: {
+                in: sizes.flatMap((item) => item)
+            }
+        }
+    })
+
     const formattedOrders: OrderColumn[] = orders.map((item) => ({
         id: item.id,
+        size: item.orderItems.map((orderItem) => orderItem.size?.name || 'N/A').join(', '),
         phone: item.phone,
         address: item.address,
         products: item.orderItems.map((orderItem) => orderItem.product.name).join(', '),

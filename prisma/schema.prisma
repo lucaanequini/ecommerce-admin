@@ -59,6 +59,7 @@ model Size {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   ProductSize ProductSize[]
+  OrderItem   OrderItem[]
 }
 
 model Color {
@@ -80,6 +81,7 @@ model Product {
   category   Category      @relation("CategoryToProduct", fields: [categoryId], references: [id])
   name       String
   price      Decimal
+  quantity   Int
   isFeatured Boolean       @default(false)
   isArchived Boolean       @default(false)
   colorId    String
@@ -126,4 +128,6 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id])
   productId String
   product   Product @relation(fields: [productId], references: [id])
+  sizeId    String
+  size      Size    @relation(fields: [sizeId], references: [id])
 }

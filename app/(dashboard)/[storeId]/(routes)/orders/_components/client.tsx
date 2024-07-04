@@ -5,6 +5,7 @@ import { OrderColumn, columns } from "./columns"
 import { Heading } from "@/components/ui/heading"
 import { Separator } from "@/components/ui/separator"
 import { DataTable } from "@/components/ui/data-table"
+import { Order } from "@prisma/client"
 
 interface OrderProps {
     data: OrderColumn[]
@@ -13,6 +14,7 @@ interface OrderProps {
 export const OrderClient: React.FC<OrderProps> = ({
     data
 }) => {
+
     return (
         <>
             <Heading

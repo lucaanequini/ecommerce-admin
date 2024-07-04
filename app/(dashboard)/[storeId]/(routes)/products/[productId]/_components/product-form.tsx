@@ -28,7 +28,8 @@ const formSchema = z.object({
     colorId: z.string().min(1),
     sizes: z.array(z.string()).min(1), // Atualizado para aceitar um array de strings
     isFeatured: z.boolean().default(false).optional(),
-    isArchived: z.boolean().default(false).optional()
+    isArchived: z.boolean().default(false).optional(),
+    quantity: z.coerce.number().min(1)
 })
 
 type ProductFormValues = z.infer<typeof formSchema>
@@ -57,6 +58,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         defaultValues: initialData ? {
             ...initialData,
             price: parseFloat(String(initialData?.price)),
+            quantity: parseInt(String(initialData?.quantity)),
             sizes: initialData.sizes.map((size) => size.sizeId)
         } : {
             name: '',
@@ -66,7 +68,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             colorId: '',
             sizes: [],
             isFeatured: false,
-            isArchived: false
+            isArchived: false,
+            quantity: 1
         }
     })
 
@@ -181,6 +184,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                     <FormLabel>Price</FormLabel>
                                     <FormControl>
                                         <Input type='number' disabled={loading} placeholder='69.99' {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name='quantity'
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Quantity</FormLabel>
+                                    <FormControl>
+                                        <Input type='number' disabled={loading} placeholder='10' {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

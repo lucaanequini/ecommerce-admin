@@ -11,7 +11,7 @@ export async function POST (
         const { userId } = auth();
         const body = await req.json();
         
-        const { name, price, categoryId, sizes, colorId, images, isFeatured, isArchived } = body;
+        const { name, price, categoryId, sizes, colorId, images, isFeatured, isArchived, quantity } = body;
 
         if (!userId) {
             return new NextResponse('Unauthenticated', { status: 401 });
@@ -41,6 +41,10 @@ export async function POST (
             return new NextResponse('Image is required', { status: 400 });
         }
 
+        if (!quantity) {
+            return new NextResponse('Quantity is required', { status: 400 } )
+        }
+
         if (!params.storeId) {
             return new NextResponse('StoreId is required', { status: 400 });
         }
@@ -67,6 +71,7 @@ export async function POST (
                 price,
                 isFeatured,
                 isArchived,
+                quantity,
                 sizes: {
                     createMany: {
                         data: sizes.map((sizeId: string) => ({ sizeId }))
