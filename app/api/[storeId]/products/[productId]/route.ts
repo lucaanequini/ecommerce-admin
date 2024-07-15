@@ -173,7 +173,6 @@ export async function DELETE (
             }
         })
 
-        console.log(product)
         return NextResponse.json(product)
 
     } catch (error) {
